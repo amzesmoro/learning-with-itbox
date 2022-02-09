@@ -42,15 +42,29 @@ class _NotesGridState extends State<NotesGrid> {
     ),
   ];
 
+  void toggleIsPinned(String id) {
+    int index = _listNote.indexWhere((note) => note.id == id);
+    if (index >= 0) {
+      setState(() {
+        _listNote[index].isPinned = !_listNote[index].isPinned;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Note> tempListNote = _listNote.where((note) => note.isPinned).toList();
+    tempListNote.addAll(_listNote.where((note) => !note.isPinned).toList()); 
     return Padding(
       padding: EdgeInsets.all(12) ,
       child: GridView.builder(
-        itemCount: _listNote.length,
+        itemCount: tempListNote.length,
         itemBuilder: (ctx, index) => NoteItem(
-          title: _listNote[index].title,
-          note: _listNote[index].note,
+          id: tempListNote[index].id,
+          title: tempListNote[index].title,
+          note: tempListNote[index].note,
+          isPinned: tempListNote[index].isPinned,
+          toggleIsPinnedFn: toggleIsPinned,
         ),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,

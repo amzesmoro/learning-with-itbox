@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:notes_app/presentations/custom_icons_icons.dart';
 
 class NoteItem extends StatefulWidget {
+  final String id;
   final String title;
   final String note;
+  final bool isPinned;
+  final Function(String id) toggleIsPinnedFn;
 
   NoteItem({
+    @required this.id,
     @required this.title,
     @required this.note,
+    @required this.isPinned,
+    @required this.toggleIsPinnedFn,
   });
 
   @override
@@ -15,14 +21,19 @@ class NoteItem extends StatefulWidget {
 }
 
 class _NoteItemState extends State<NoteItem> {
+  bool _isPinned;
+
   @override
   Widget build(BuildContext context) {
+    _isPinned = widget.isPinned;
     return GridTile(
       header: Align(
         alignment: Alignment.topRight,
         child: IconButton(
-          onPressed: () {},
-          icon: Icon(CustomIcons.pin_outline),
+          onPressed: () {
+            widget.toggleIsPinnedFn(widget.id);
+          },
+          icon: Icon(_isPinned ? CustomIcons.pin : CustomIcons.pin_outline),
         ),
       ),
       child: Container(
