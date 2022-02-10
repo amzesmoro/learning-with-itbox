@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/api/note_api.dart';
 import 'package:notes_app/models/note.dart';
 
 class Notes with ChangeNotifier {
@@ -35,6 +36,11 @@ class Notes with ChangeNotifier {
       createdAt: DateTime.parse('2021-05-20 21:51:33'),
     ),
   ];
+
+  Future<void>  getAndSetNotes() async {
+    _notes = await NoteApi().getAllNote();
+    notifyListeners(); 
+  }
 
   List<Note> get notes {
     List<Note> tempListNote = _notes.where((note) => note.isPinned).toList();
