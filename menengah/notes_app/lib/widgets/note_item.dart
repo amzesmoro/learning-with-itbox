@@ -20,39 +20,45 @@ class _NoteItemState extends State<NoteItem> {
   Widget build(BuildContext context) {
     final notesProvider = Provider.of<Notes>(context, listen: false);
     Note note = notesProvider.getNote(widget.id);
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(
-        AddOrDetailScreen.routeName,
-        arguments: note.id,
-      ),
-      child: GridTile(
-        header: Align(
-          alignment: Alignment.topRight,
-          child: IconButton(
-            onPressed: () {
-              notesProvider.toggleIsPinned(note.id);
-            },
-            icon:
-                Icon(note.isPinned ? CustomIcons.pin : CustomIcons.pin_outline),
-          ),
+    return Dismissible(
+      key: Key(note.id),
+      onDismissed: (direction) {
+        notesProvider.deleteNote(note.id);
+      },
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).pushNamed(
+          AddOrDetailScreen.routeName,
+          arguments: note.id,
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.grey[800],
+        child: GridTile(
+          header: Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              onPressed: () {
+                notesProvider.toggleIsPinned(note.id);
+              },
+              icon: Icon(
+                  note.isPinned ? CustomIcons.pin : CustomIcons.pin_outline),
+            ),
           ),
-          child: Text(note.note),
-          padding: EdgeInsets.all(12),
-        ),
-        footer: ClipRRect(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(12),
-            bottomRight: Radius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(),
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey[800],
+            ),
+            child: Text(note.note),
+            padding: EdgeInsets.all(12),
           ),
-          child: GridTileBar(
-            title: Text(note.title),
-            backgroundColor: Colors.black87,
+          footer: ClipRRect(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(12),
+              bottomRight: Radius.circular(12),
+            ),
+            child: GridTileBar(
+              title: Text(note.title),
+              backgroundColor: Colors.black87,
+            ),
           ),
         ),
       ),

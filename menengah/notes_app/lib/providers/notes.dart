@@ -64,4 +64,9 @@ class Notes with ChangeNotifier {
     _notes[index] = newNote;
     notifyListeners();
   }
+
+  void deleteNote(String id) {
+    _notes.removeWhere((note) => note.id == id);
+    notifyListeners();
+  }
 }

@@ -51,7 +51,6 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
 
   String _convertDate(DateTime dateTime) {
     int diff = DateTime.now().difference(dateTime).inDays;
-    print('ini diff $diff');
     if (diff > 0) {
       return DateFormat('dd-MM-yyyy').format(dateTime);
     }
