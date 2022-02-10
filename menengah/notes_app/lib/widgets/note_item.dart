@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/models/note.dart';
 import 'package:notes_app/presentations/custom_icons_icons.dart';
+import 'package:notes_app/providers/notes.dart';
+import 'package:provider/provider.dart';
 
 class NoteItem extends StatefulWidget {
   final String id;
-  final String title;
-  final String note;
-  final bool isPinned;
-  final Function(String id) toggleIsPinnedFn;
-
   NoteItem({
     @required this.id,
-    @required this.title,
-    @required this.note,
-    @required this.isPinned,
-    @required this.toggleIsPinnedFn,
   });
 
   @override
@@ -21,19 +15,18 @@ class NoteItem extends StatefulWidget {
 }
 
 class _NoteItemState extends State<NoteItem> {
-  bool _isPinned;
-
   @override
   Widget build(BuildContext context) {
-    _isPinned = widget.isPinned;
+    final notesProvider = Provider.of<Notes>(context, listen: false);
+    Note note = notesProvider.getNote(widget.id);
     return GridTile(
       header: Align(
         alignment: Alignment.topRight,
         child: IconButton(
           onPressed: () {
-            widget.toggleIsPinnedFn(widget.id);
+            notesProvider.toggleIsPinned(note.id);
           },
-          icon: Icon(_isPinned ? CustomIcons.pin : CustomIcons.pin_outline),
+          icon: Icon(note.isPinned ? CustomIcons.pin : CustomIcons.pin_outline),
         ),
       ),
       child: Container(
@@ -42,7 +35,7 @@ class _NoteItemState extends State<NoteItem> {
           borderRadius: BorderRadius.circular(12),
           color: Colors.grey[800],
         ),
-        child: Text(widget.note),
+        child: Text(note.note),
         padding: EdgeInsets.all(12),
       ),
       footer: ClipRRect(
@@ -51,7 +44,7 @@ class _NoteItemState extends State<NoteItem> {
           bottomRight: Radius.circular(12),
         ),
         child: GridTileBar(
-          title: Text(widget.title),
+          title: Text(note.title),
           backgroundColor: Colors.black87,
         ),
       ),

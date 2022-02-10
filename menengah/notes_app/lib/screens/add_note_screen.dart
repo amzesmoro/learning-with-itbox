@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/models/note.dart';
+import 'package:notes_app/providers/notes.dart';
+import 'package:provider/provider.dart';
 
 class AddNoteScreen extends StatefulWidget {
-  final Function(Note note) addNoteFn;
-  AddNoteScreen(this.addNoteFn);
-
   @override
   _AddNoteScreenState createState() => _AddNoteScreenState();
 }
@@ -27,7 +26,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       updatedAt: now,
       createdAt: now,
     );
-    widget.addNoteFn(_note);
+    final notesProvider = Provider.of<Notes>(context, listen: false);
+    notesProvider.addNote(_note);
     Navigator.of(context).pop();
   }
 
