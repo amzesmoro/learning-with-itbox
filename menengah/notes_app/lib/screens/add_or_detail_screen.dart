@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:notes_app/models/note.dart';
 import 'package:notes_app/providers/notes.dart';
 import 'package:provider/provider.dart';
@@ -25,12 +26,16 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
   void submitNote() {
     _formKey.currentState.save();
     final now = DateTime.now();
-    _note.copyWith(
+    _note = _note.copyWith(
       updatedAt: now,
       createdAt: now,
     );
     final notesProvider = Provider.of<Notes>(context, listen: false);
-    notesProvider.addNote(_note);
+    if (_note.id == null) {
+      notesProvider.addNote(_note);
+    } else {
+      notesProvider.updateNote(_note);
+    }
     Navigator.of(context).pop();
   }
 
@@ -44,6 +49,16 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
     super.didChangeDependencies();
   }
 
+  String _convertDate(DateTime dateTime) {
+    int diff = DateTime.now().difference(dateTime).inDays;
+    print('ini diff $diff');
+    if (diff > 0) {
+      return DateFormat('dd-MM-yyyy').format(dateTime);
+    }
+
+    return DateFormat('hh:mm').format(dateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,39 +70,50 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
             ),
           ],
         ),
-        body: SingleChildScrollView
-        (
-          child: Container(
-            padding: EdgeInsets.all(12),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    initialValue: _note.title,
-                    decoration: InputDecoration(
-                      hintText: 'Judul',
-                      border: InputBorder.none,
-                    ),
-                    onSaved: (value) {
-                      _note = _note.copyWith(title: value);
-                    },
+        body: Stack(
+          children: [
+            Container(
+              height: double.infinity,
+              padding: EdgeInsets.all(12),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        initialValue: _note.title,
+                        decoration: InputDecoration(
+                          hintText: 'Judul',
+                          border: InputBorder.none,
+                        ),
+                        onSaved: (value) {
+                          _note = _note.copyWith(title: value);
+                        },
+                      ),
+                      TextFormField(
+                        initialValue: _note.note,
+                        decoration: InputDecoration(
+                          hintText: 'Tulis catatan disini...',
+                          border: InputBorder.none,
+                        ),
+                        onSaved: (value) {
+                          _note = _note.copyWith(note: value);
+                        },
+                        maxLines: null,
+                      ),
+                    ],
                   ),
-                  TextFormField(
-                    initialValue: _note.note,
-                    decoration: InputDecoration(
-                      hintText: 'Tulis catatan disini...',
-                      border: InputBorder.none,
-                    ),
-                    onSaved: (value) {
-                      _note = _note.copyWith(note: value);
-                    },
-                    maxLines: null,
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: Text(
+                'Terakhir diubah ${_convertDate(_note.updatedAt)}',
+              ),
+            ),
+          ],
         ));
   }
 }

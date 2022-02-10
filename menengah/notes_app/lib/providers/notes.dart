@@ -58,4 +58,10 @@ class Notes with ChangeNotifier {
     _notes.add(note);
     notifyListeners();
   }
+
+  void updateNote(Note newNote) {
+    int index = _notes.indexWhere((note) => note.id == newNote.id);
+    _notes[index] = newNote;
+    notifyListeners();
+  }
 }
