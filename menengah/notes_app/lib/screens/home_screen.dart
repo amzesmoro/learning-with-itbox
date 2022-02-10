@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/screens/add_note_screen.dart';
+import 'package:notes_app/screens/add_or_detail_screen.dart';
 import 'package:notes_app/widgets/notes_grid.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,11 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: NotesGrid(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (builder) => AddNoteScreen(),
-            ),
-          );
+          Navigator.of(context).pushNamed(AddOrDetailScreen.routeName);
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.yellow[700],
