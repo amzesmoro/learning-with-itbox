@@ -29,16 +29,36 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
     setState(() {
       _isLoading = true;
     });
-    final now = DateTime.now();
-    _note = _note.copyWith(
-      updatedAt: now,
-      createdAt: now,
-    );
-    final notesProvider = Provider.of<Notes>(context, listen: false);
-    if (_note.id == null) {
-      await notesProvider.addNote(_note);
-    } else {
-      await notesProvider.updateNote(_note);
+    try {
+      final now = DateTime.now();
+      _note = _note.copyWith(
+        updatedAt: now,
+        createdAt: now,
+      );
+      final notesProvider = Provider.of<Notes>(context, listen: false);
+      if (_note.id == null) {
+        await notesProvider.addNote(_note);
+      } else {
+        await notesProvider.updateNote(_note);
+      }
+    } catch (e) {
+      await showDialog(
+        context: context,
+        builder: (builder) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text(
+              e.toString(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Tutup'),
+              ),
+            ],
+          );
+        },
+      );
     }
     Navigator.of(context).pop();
   }

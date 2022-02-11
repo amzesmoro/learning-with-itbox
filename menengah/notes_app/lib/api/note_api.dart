@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:notes_app/models/note.dart';
 import 'package:http/http.dart' as http;
@@ -8,21 +9,32 @@ class NoteApi {
     final uri = Uri.parse(
       'https://notes-62c64-default-rtdb.asia-southeast1.firebasedatabase.app/notes.json',
     );
-    final response = await http.get(uri);
-    final results = json.decode(response.body) as Map<String, dynamic>;
     List<Note> notes = [];
-    results.forEach((key, value) {
-      notes.add(
-        Note(
-          id: key,
-          title: value['title'],
-          note: value['note'],
-          updatedAt: DateTime.parse(value['updated_at']),
-          createdAt: DateTime.parse(value['created_at']),
-          isPinned: value['isPinned'],
-        ),
-      );
-    });
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final results = json.decode(response.body) as Map<String, dynamic>;
+        results.forEach((key, value) {
+          notes.add(
+            Note(
+              id: key,
+              title: value['title'],
+              note: value['note'],
+              updatedAt: DateTime.parse(value['updated_at']),
+              createdAt: DateTime.parse(value['created_at']),
+              isPinned: value['isPinned'],
+            ),
+          );
+        });
+      } else {
+        throw Exception();
+      }
+    } on SocketException {
+      throw SocketException('Tidak ada koneksi internet');
+    } catch (e) {
+      throw Exception('Error, Terjadi kesalahan');
+    }
+
     return notes;
   }
 
@@ -37,9 +49,19 @@ class NoteApi {
       'updated_at': note.updatedAt.toIso8601String(),
       'created_at': note.createdAt.toIso8601String(),
     };
-    final body = json.encode(map);
-    final response = await http.post(uri, body: body);
-    return json.decode(response.body)['name'];
+    try {
+      final body = json.encode(map);
+      final response = await http.post(uri, body: body);
+      if (response.statusCode == 200) {
+        return json.decode(response.body)['name'];
+      } else {
+        throw Exception();
+      }
+    } on SocketException {
+      throw SocketException('Tidak ada koneksi internet');
+    } catch (e) {
+      throw Exception('Error, Terjadi kesalahan');
+    }
   }
 
   Future<void> updateNote(Note note) async {
@@ -51,8 +73,15 @@ class NoteApi {
       'note': note.note,
       'updated_at': note.updatedAt.toIso8601String(),
     };
-    final body = json.encode(map);
-    final response = await http.patch(uri, body: body);
+    try {
+      final body = json.encode(map);
+      final response = await http.patch(uri, body: body);
+      if (response.statusCode != 200) throw Exception();
+    } on SocketException {
+      throw SocketException('Tidak ada koneksi internet');
+    } catch (e) {
+      throw Exception('Error, Terjadi kesalahan');
+    }
   }
 
   Future<void> toggleIsPinned(
@@ -64,14 +93,28 @@ class NoteApi {
       'isPinned': isPinned,
       'updated_at': updatedAt.toIso8601String(),
     };
-    final body = json.encode(map);
-    final response = await http.patch(uri, body: body);
+    try {
+      final body = json.encode(map);
+      final response = await http.patch(uri, body: body);
+      if (response.statusCode != 200) throw Exception();
+    } on SocketException {
+      throw SocketException('Tidak ada koneksi internet');
+    } catch (e) {
+      throw Exception('Error, terjadi kesalahan');
+    }
   }
 
   Future<void> deleteNote(String id) async {
     final uri = Uri.parse(
       'https://notes-62c64-default-rtdb.asia-southeast1.firebasedatabase.app/notes/$id.json',
     );
-    final response = await http.delete(uri);
+    try {
+      final response = await http.delete(uri);
+      if (response.statusCode != 200) throw Exception();
+    } on SocketException {
+      throw SocketException('Tidak ada koneksi internet');
+    } catch (e) {
+      throw Exception('Error, terjadi kesalahan');
+    }
   }
 }

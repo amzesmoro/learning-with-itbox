@@ -24,6 +24,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircularProgressIndicator(),
             );
           }
+          if (notesSnapshot.hasError) {
+            return Center(
+              child: Text(
+                notesSnapshot.error.toString(),
+              ),
+            );
+          }
           return NotesGrid();
         },
       ),

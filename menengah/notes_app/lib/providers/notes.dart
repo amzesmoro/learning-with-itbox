@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:notes_app/api/note_api.dart';
 import 'package:notes_app/models/note.dart';
@@ -38,7 +40,14 @@ class Notes with ChangeNotifier {
   ];
 
   Future<void> getAndSetNotes() async {
-    _notes = await NoteApi().getAllNote();
+    try {
+      _notes = await NoteApi().getAllNote();
+    } on SocketException {
+      notifyListeners();
+      return;
+    } catch (e) {
+      return Future.error(e);
+    }
     notifyListeners();
   }
 
@@ -54,34 +63,59 @@ class Notes with ChangeNotifier {
 
   Future<void> toggleIsPinned(String id) async {
     int index = _notes.indexWhere((note) => note.id == id);
-    if (index >= 0) {
+    try {
+      if (index >= 0) {
+        _notes[index].isPinned = !_notes[index].isPinned;
+        _notes[index] = _notes[index].copyWith(updatedAt: DateTime.now());
+        notifyListeners();
+        await NoteApi().toggleIsPinned(
+          id,
+          _notes[index].isPinned,
+          _notes[index].updatedAt,
+        );
+      }
+    } catch (e) {
       _notes[index].isPinned = !_notes[index].isPinned;
-      _notes[index] = _notes[index].copyWith(updatedAt: DateTime.now());
-      await NoteApi()
-          .toggleIsPinned(id, _notes[index].isPinned, _notes[index].updatedAt);
       notifyListeners();
+      return Future.error(e);
     }
   }
 
   Future<void> addNote(Note note) async {
-    String id = await NoteApi().postNote(note);
-    note = note.copyWith(
-      id: id,
-    );
-    _notes.add(note);
-    notifyListeners();
+    try {
+      String id = await NoteApi().postNote(note);
+      note = note.copyWith(
+        id: id,
+      );
+      _notes.add(note);
+      notifyListeners();
+    } catch (e) {
+      return Future.error(e);
+    }
   }
 
   Future<void> updateNote(Note newNote) async {
-    await NoteApi().updateNote(newNote);
-    int index = _notes.indexWhere((note) => note.id == newNote.id);
-    _notes[index] = newNote;
-    notifyListeners();
+    try {
+      await NoteApi().updateNote(newNote);
+      int index = _notes.indexWhere((note) => note.id == newNote.id);
+      _notes[index] = newNote;
+      notifyListeners();
+    } catch (e) {
+      return Future.error(e);
+    }
   }
 
-  void deleteNote(String id) {
-    NoteApi().deleteNote(id);
-    _notes.removeWhere((note) => note.id == id);
-    notifyListeners();
+  Future<void> deleteNote(String id) async {
+    int index = _notes.indexWhere((note) => note.id == id);
+    Note tempNote = _notes[index];
+    try {
+      _notes.removeAt(index);
+      notifyListeners();
+      await NoteApi().deleteNote(id);
+    } catch (e) {
+      _notes.insert(index, tempNote);
+      notifyListeners();
+      return Future.error(e);
+    }
   }
 }
