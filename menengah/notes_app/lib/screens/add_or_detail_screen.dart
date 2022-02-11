@@ -43,7 +43,9 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
   void didChangeDependencies() {
     if (init) {
       String id = ModalRoute.of(context).settings.arguments as String;
-      _note = Provider.of<Notes>(context).getNote(id);
+      if (id != null) {
+        _note = Provider.of<Notes>(context).getNote(id);
+      }
       init = false;
     }
     super.didChangeDependencies();
@@ -105,13 +107,14 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
                 ),
               ),
             ),
-            Positioned(
-              bottom: 10,
-              right: 10,
-              child: Text(
-                'Terakhir diubah ${_convertDate(_note.updatedAt)}',
+            if (_note.updatedAt != null)
+              Positioned(
+                bottom: 10,
+                right: 10,
+                child: Text(
+                  'Terakhir diubah ${_convertDate(_note.updatedAt)}',
+                ),
               ),
-            ),
           ],
         ));
   }
