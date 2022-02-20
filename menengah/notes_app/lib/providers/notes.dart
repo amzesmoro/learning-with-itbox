@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:notes_app/api/note_api.dart';
+import 'package:notes_app/database/database_helper.dart';
 import 'package:notes_app/models/note.dart';
 
 class Notes with ChangeNotifier {
@@ -42,13 +43,15 @@ class Notes with ChangeNotifier {
   Future<void> getAndSetNotes() async {
     try {
       _notes = await NoteApi().getAllNote();
+      await DatabaseHelper().insertAllNote(_notes);
+      notifyListeners();
     } on SocketException {
+      _notes = await DatabaseHelper().getAllNote();
       notifyListeners();
       return;
     } catch (e) {
       return Future.error(e);
     }
-    notifyListeners();
   }
 
   List<Note> get notes {
