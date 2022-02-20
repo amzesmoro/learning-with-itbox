@@ -95,6 +95,7 @@ class Notes with ChangeNotifier {
       note = note.copyWith(
         id: id,
       );
+      await DatabaseHelper().inserNote(note);
       _notes.add(note);
       notifyListeners();
     } catch (e) {

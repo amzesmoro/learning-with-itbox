@@ -29,6 +29,7 @@ class DatabaseHelper {
           )
         ''');
       },
+      onUpgrade: (db, oldVersion, newVersion) {},
     );
   }
 
@@ -87,6 +88,14 @@ class DatabaseHelper {
       TABLE_NOTES,
       where: '$TABLE_NOTES_ID = ?',
       whereArgs: [id],
+    );
+  }
+
+  Future<void> inserNote(Note note) async {
+    final db = await DatabaseHelper.init();
+    await db.insert(
+      TABLE_NOTES,
+      note.toDb(),
     );
   }
 }
