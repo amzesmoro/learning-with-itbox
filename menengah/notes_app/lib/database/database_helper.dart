@@ -56,4 +56,37 @@ class DatabaseHelper {
     });
     await batch.commit();
   }
+
+  Future<void> updateNote(Note note) async {
+    final db = await DatabaseHelper.init();
+    await db.update(
+      TABLE_NOTES,
+      note.toDb(),
+      where: '$TABLE_NOTES_ID = ?',
+      whereArgs: [note.id],
+    );
+  }
+
+  Future<void> toggleIsPinned(
+      String id, bool isPinned, DateTime updatedAt) async {
+    final db = await DatabaseHelper.init();
+    await db.update(
+      TABLE_NOTES,
+      {
+        TABLE_NOTES_ISPINNED: isPinned ? 1 : 0,
+        TABLE_NOTES_UPDATEDAT: updatedAt.toIso8601String(),
+      },
+      where: '$TABLE_NOTES_ID = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteNote(String id) async {
+    final db = await DatabaseHelper.init();
+    await db.delete(
+      TABLE_NOTES,
+      where: '$TABLE_NOTES_ID = ?',
+      whereArgs: [id],
+    );
+  }
 }

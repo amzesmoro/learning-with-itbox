@@ -76,6 +76,11 @@ class Notes with ChangeNotifier {
           _notes[index].isPinned,
           _notes[index].updatedAt,
         );
+        await DatabaseHelper().toggleIsPinned(
+          id,
+          _notes[index].isPinned,
+          _notes[index].updatedAt,
+        );
       }
     } catch (e) {
       _notes[index].isPinned = !_notes[index].isPinned;
@@ -100,6 +105,7 @@ class Notes with ChangeNotifier {
   Future<void> updateNote(Note newNote) async {
     try {
       await NoteApi().updateNote(newNote);
+      await DatabaseHelper().updateNote(newNote);
       int index = _notes.indexWhere((note) => note.id == newNote.id);
       _notes[index] = newNote;
       notifyListeners();
@@ -115,6 +121,7 @@ class Notes with ChangeNotifier {
       _notes.removeAt(index);
       notifyListeners();
       await NoteApi().deleteNote(id);
+      await DatabaseHelper().deleteNote(id);
     } catch (e) {
       _notes.insert(index, tempNote);
       notifyListeners();
